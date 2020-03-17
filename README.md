@@ -92,7 +92,6 @@ You can also use this tool within a cron job to create every X minute a new comm
     ```bash
     sharelatex-versioning download-zip --in_file /path/to/config.json --working_dir /path/to/repository
     cd /path/to/repository
-    git add .
     git commit -m "Update"
     ```
    Usually, it is better to use the absolute path to the `sharelatex-versioning` script.
