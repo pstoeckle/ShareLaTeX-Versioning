@@ -4,7 +4,7 @@ Download zip.
 from fnmatch import fnmatch
 from functools import partial
 from json import load
-from os import chmod, path, remove, walk
+from os import chmod, path, remove, sep, walk
 from stat import S_IRUSR, S_IWUSR
 from tempfile import gettempdir
 from typing import List
@@ -37,6 +37,7 @@ def download_zip_implementation(
 
     """
     if path.isfile(in_file):
+        working_dir = working_dir.rstrip(sep)
         work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
