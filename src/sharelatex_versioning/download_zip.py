@@ -6,6 +6,7 @@ from functools import partial
 from json import load
 from os import chmod, path, remove, sep, walk
 from stat import S_IRUSR, S_IWUSR
+from subprocess import call
 from tempfile import gettempdir
 from typing import List
 from zipfile import ZipFile
@@ -67,6 +68,7 @@ def download_zip_implementation(
             zip_ref.extractall(working_dir)
         for name in full_name_list:
             chmod(name, S_IRUSR)
+            call(["git", "add", name], cwd=working_dir)
         _file_deletion(zip_file_location, True)
     else:
         print("Error: Config was empty!")
