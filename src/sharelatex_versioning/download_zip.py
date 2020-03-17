@@ -36,7 +36,7 @@ def download_zip_implementation(force: bool, in_file: str, white_list: str) -> N
     if path.isfile(in_file):
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
-        zip_file_location = _download_zip_file(data["package_id"], data["share_id"])
+        zip_file_location = _download_zip_file(data["project_id"], data["share_id"])
         line_matcher = _create_line_matchers(path.basename(in_file), white_list)
 
         with ZipFile(zip_file_location) as zip_ref:

@@ -10,4 +10,4 @@ class Configuration(TypedDict):
     """
 
     share_id: str
-    package_id: str
+    project_id: str
