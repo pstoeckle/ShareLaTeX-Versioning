@@ -1,4 +1,4 @@
-# Sharelatex-Versioning
+# ShareLaTeX-Versioning
 
 The idea of this repository is pretty simple.
 You are writing your paper using [TUM's ShareLaTeX instance](https://sharelatex.tum.de).
@@ -23,11 +23,11 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 5. Install the command-line script
 
     ```bash
-    pip install -e . 
+    pip install -e .
     ```
 
     Now you should be able to call `sharelatex-versioning` within your shell.
-    
+
 ## Repository Setup
 
 1. Open your ShareLaTeX project.
@@ -35,45 +35,46 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 3. Click on `Turn on link sharing`
 4. You should see link
 
-    ```
+    ```bash
     https://sharelatex.tum.de/read/this_is_your_share_id
     ```
-   
+
     Note the `share_id`.
 5. In the URL field of your browser, the link of your project should look like this.
 
-    ```
+    ```bash
    https://sharelatex.tum.de/project/this-is-your-project-id
     ```
+
    Note the `project_id`
 6. Create folder named `my_cool_sharelatex_project`
 7. Change the directory into the folder
 8. Initialize a git repository
-   
+
     ```bash
     git init
     ```
-   
+
 9. Create a file named `config.json`
 10. Open that file and change it to
-    
+
     ```json
     {
       "share_id": "your_share_id",
       "project_id": "your_project_id"
     }
     ```
-    
+
     Replace the placeholders with your values.
 
-## Creating a commit  
+## Creating a commit
 
 1. Run the command
 
     ```bash
     sharelatex-versioning download-zip --in_file ./config.json
     ```
-    
+
     Now, you should have a local copy of your ShareLaTeX project.
 2. Add all files to git
 3. Commit your changes
@@ -84,9 +85,11 @@ You can also use this tool within a cron job to create every X minute a new comm
 
 1. Create script file, e.g., `commit.sh`
 2. Make it executable
+
     ```bash
-    chmod +x commit.sh 
+    chmod +x commit.sh
     ```
+
 3. Change the content to the following
 
     ```bash
@@ -94,29 +97,28 @@ You can also use this tool within a cron job to create every X minute a new comm
     cd /path/to/repository
     git commit -m "Update"
     ```
+
    Usually, it is better to use the absolute path to the `sharelatex-versioning` script.
-   You can get this path by calling 
-   
+   You can get this path by calling
+
    ```bash
    which sharelatex-versioning
    ```
 
 4. Open cron
+
     ```bash
-    crontab -e 
+    crontab -e
     ```
+
 5. Add this line
-    
+
    ```cron
    1/10  8-18    *       *       1-5             /path/to/commit.sh >> /path/to/repo/commit.log 2>&1
    ```
-    
+
     Now, every 10 minute, there will be a commit with the new changes to your ShareLaTeX project.
 
-## Contact 
+## Contact
 
-If you have any question, please contact [Patrick Stoeckle](mailto:patrick.stoeckle@tum.de)
- 
-
-
-
+If you have any question, please contact [Patrick Stoeckle](mailto:patrick.stoeckle@tum.de).
