@@ -96,6 +96,8 @@ def download_zip(in_file: str, force: bool, white_list: Optional[str]) -> None:
         for name in name_list:
             chmod(name, S_IRUSR)
         _file_deletion(zip_file_location, True)
+    else:
+        print("Error: Config was empty!")
 
 
 def _create_line_matchers(in_file: str, white_list: str):
