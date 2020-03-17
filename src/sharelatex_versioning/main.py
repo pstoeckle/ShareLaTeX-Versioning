@@ -9,7 +9,7 @@ from stat import S_IRUSR, S_IWUSR
 from tempfile import gettempdir
 from typing import List
 from zipfile import ZipFile
-
+from typing import Callable
 from click import group, option
 from pandas import read_csv
 from requests import Session
@@ -78,8 +78,7 @@ def download_zip(in_file: str, force: bool, white_list: Optional[str]) -> None:
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
         zip_file_location = _download_zip_file(data["package_id"], data["share_id"])
-
-        line_matcher = _create_line_matchers(path.basename(in_file))
+        line_matcher = _create_line_matchers(path.basename(in_file), white_list)
 
         with ZipFile(zip_file_location) as zip_ref:
             name_list = set(zip_ref.namelist())
@@ -99,10 +98,10 @@ def download_zip(in_file: str, force: bool, white_list: Optional[str]) -> None:
         _file_deletion(zip_file_location, True)
 
 
-def _create_line_matchers(in_file: str):
+def _create_line_matchers(in_file: str, white_list: str):
     with open(_GIT_IGNORE_TXT) as f_read:
         lines = f_read.readlines()
-    lines = (
+    lines = list(
         [
             current_line.strip()
             for current_line in lines
@@ -111,6 +110,12 @@ def _create_line_matchers(in_file: str):
         + _DEFAULT_IGNORED_FILES
         + [in_file]
     )
+    if white_list is not None:
+        lines.append(path.basename(white_list))
+        with open(white_list) as f_read:
+            white_list_entries = f_read.readlines()
+        for white_list_entry in white_list_entries:
+            lines.append(white_list_entry.strip())
     line_matcher = partial(_match_no_line, lines=lines)
     return line_matcher
 
