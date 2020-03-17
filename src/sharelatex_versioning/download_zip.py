@@ -22,10 +22,13 @@ _DEFAULT_IGNORED_FILES = [
 ]
 
 
-def download_zip_implementation(force: bool, in_file: str, white_list: str) -> None:
+def download_zip_implementation(
+    force: bool, in_file: str, white_list: str, working_dir: str
+) -> None:
     """
 
     Args:
+        working_dir:
         force:
         in_file:
         white_list:
@@ -34,33 +37,46 @@ def download_zip_implementation(force: bool, in_file: str, white_list: str) -> N
 
     """
     if path.isfile(in_file):
+        work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
         zip_file_location = _download_zip_file(data["project_id"], data["share_id"])
-        line_matcher = _create_line_matchers(path.basename(in_file), white_list)
+        line_matcher = _create_line_matchers(
+            path.basename(in_file), white_list, working_dir
+        )
 
         with ZipFile(zip_file_location) as zip_ref:
             name_list = set(zip_ref.namelist())
-
-        for root, dirs, files in walk("."):
+        for root, dirs, files in walk(working_dir):
             files = (path.join(root, f) for f in files)
-            files = (f for f in files if line_matcher(file_name=f[2:]))
-            files = (f for f in files if f[2:] not in name_list)
+            files = (
+                f
+                for f in files
+                if line_matcher(file_name=work_dir_replacer(file_name=f))
+            )
+            files = (
+                f for f in files if work_dir_replacer(file_name=f) not in name_list
+            )
             for f in files:
                 _file_deletion(f, force)
-        for name in (n for n in name_list if path.isfile(n)):
+        full_name_list = [path.join(working_dir, n) for n in name_list]
+        for name in (n for n in full_name_list if path.isfile(n)):
             chmod(name, S_IWUSR | S_IRUSR)
         with ZipFile(zip_file_location) as zip_ref:
-            zip_ref.extractall(".")
-        for name in name_list:
+            zip_ref.extractall(working_dir)
+        for name in full_name_list:
             chmod(name, S_IRUSR)
         _file_deletion(zip_file_location, True)
     else:
         print("Error: Config was empty!")
 
 
-def _create_line_matchers(in_file: str, white_list: str):
-    with open(_GIT_IGNORE_TXT) as f_read:
+def _replace_workdir(file_name: str, workdir: str) -> str:
+    return file_name.replace(workdir, "")[1:]
+
+
+def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
+    with open(path.join(working_dir, _GIT_IGNORE_TXT)) as f_read:
         lines = f_read.readlines()
     lines = list(
         [

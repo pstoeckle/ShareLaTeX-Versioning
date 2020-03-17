@@ -37,6 +37,10 @@ _FORCE_OPTION = option(
     "and not convered by .gitignore or the white_list option, are deleted.",
 )
 
+_WORKING_DIR_OPTION = option(
+    "--working_dir", "-d", default=".", help="The path of the working dir",
+)
+
 
 @group()
 def main_group() -> None:
@@ -61,11 +65,14 @@ def _convert_csv_entry(in_file: str) -> None:
         data.to_csv(in_file, sep=";")
 
 
+@_WORKING_DIR_OPTION
 @_WHITE_LIST_OPTION
 @_IN_FILE_OPTION
 @_FORCE_OPTION
 @main_group.command()
-def download_zip(in_file: str, force: bool, white_list: Optional[str]) -> None:
+def download_zip(
+    in_file: str, force: bool, white_list: Optional[str], working_dir: str
+) -> None:
     """
     This command downloads your ShareLaTeX project as ZIP compressed file.
     Next, the zip folder is extracted into the current directory.
@@ -73,7 +80,7 @@ def download_zip(in_file: str, force: bool, white_list: Optional[str]) -> None:
     If you want, the script can also delete all the files which are no longer in your project.
     Thus, files deleted on the ShareLaTeX instance are also deleted locally.
     """
-    download_zip_implementation(force, in_file, white_list)
+    download_zip_implementation(force, in_file, white_list, working_dir)
 
 
 if __name__ == "__main__":
