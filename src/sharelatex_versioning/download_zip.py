@@ -3,11 +3,9 @@ Download zip.
 """
 from fnmatch import fnmatch
 from functools import partial
-from hashlib import sha1
 from json import load
 from logging import INFO, basicConfig, getLogger
 from os import chmod, path, remove, sep, walk
-from os.path import isfile, join
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
