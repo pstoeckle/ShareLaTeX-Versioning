@@ -3,8 +3,11 @@ Download zip.
 """
 from fnmatch import fnmatch
 from functools import partial
+from hashlib import sha1
 from json import load
+from logging import INFO, basicConfig, getLogger
 from os import chmod, path, remove, sep, walk
+from os.path import isfile, join
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
@@ -14,6 +17,14 @@ from zipfile import ZipFile
 from requests import Session
 
 from sharelatex_versioning.configuration import Configuration
+
+basicConfig(
+    level=INFO,
+    format="%(asctime)s-%(levelname)s: %(message)s",
+    datefmt="%Y_%m_%d %H:%M",
+)
+_LOGGER = getLogger(__name__)
+
 
 _TMP_ZIP_FILE_NAME = "test.zip"
 _GIT_IGNORE_TXT = ".gitignore"
@@ -71,7 +82,7 @@ def download_zip_implementation(
             call(["git", "add", name], cwd=working_dir)
         _file_deletion(zip_file_location, True)
     else:
-        print("Error: Config was empty!")
+        _LOGGER.critical("Error: Config was empty!")
 
 
 def _replace_workdir(file_name: str, workdir: str) -> str:
@@ -118,9 +129,9 @@ def _download_zip_file(package_id: str, share_id: str) -> str:
 def _file_deletion(f: str, force: bool) -> None:
     if force:
         remove(f)
-        print("{}: This file was removed".format(f))
+        _LOGGER.info("{}: This file was removed".format(f))
     else:
-        print("{}: This file should be deleted".format(f))
+        _LOGGER.info("{}: This file should be deleted".format(f))
 
 
 def _match_no_line(lines: List[str], file_name: str) -> bool:
