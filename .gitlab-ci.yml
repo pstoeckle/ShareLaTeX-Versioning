@@ -1,0 +1,109 @@
+stages:
+    - setup
+    - pre-analysis
+    - test
+    - publish
+
+include:
+    -   template: Dependency-Scanning.gitlab-ci.yml
+    -   template: License-Scanning.gitlab-ci.yml
+    -   template: SAST.gitlab-ci.yml
+    -   template: Secret-Detection.gitlab-ci.yml
+
+python:setup:
+    artifacts:
+        paths:
+            - requirements.txt
+    cache: &python-cache
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - ".venv"
+    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+    needs: [ ]
+    rules: &dependency-rules
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+        -   if: '$CI_COMMIT_BRANCH == "development"'
+            changes:
+                - poetry.lock
+                - pyproject.toml
+                - .gitlab-ci.yml
+    script:
+        - poetry install
+        - poetry export > requirements.txt
+    stage: setup
+
+variables:
+    ASDF_PYTHON_VERSION: "3.9"
+    DS_DEFAULT_ANALYZERS: "gemnasium-python"
+    LM_PYTHON_VERSION: "3"
+    SAST_DEFAULT_ANALYZERS: "bandit"
+
+sast:
+    stage: pre-analysis
+
+secret_detection:
+    stage: pre-analysis
+    rules: &secret-detection-rules
+        -   if: '$CI_COMMIT_BRANCH == "development"'
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+
+bandit-sast:
+    stage: pre-analysis
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+        -   if: '$CI_COMMIT_BRANCH == "development"'
+            changes:
+                - "src/sharelatex_versioning/**.py"
+                - .gitlab-ci.yml
+
+secret_detection_default_branch:
+    stage: pre-analysis
+    rules: *secret-detection-rules
+
+gemnasium-python-dependency_scanning:
+    stage: pre-analysis
+    rules: *dependency-rules
+    needs: &dependency-needs
+        - python:setup
+
+license_scanning:
+    stage: pre-analysis
+    rules: *dependency-rules
+    needs: *dependency-needs
+
+python:test:
+    artifacts:
+        reports:
+            cobertura: coverage.xml
+            junit: report.xml
+    cache: *python-cache
+    coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
+    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+    needs: [ ]
+    rules:
+        -   changes:
+                - "src/sharelatex_versioning/**.py"
+                - .gitlab-ci.yml
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+        -   if: '$CI_COMMIT_BRANCH == "development"'
+    script:
+        - poetry install
+        - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./src/sharelatex_versioning/tests
+        - head -n 2 coverage.xml >> t.txt
+        - tail -n 1 t.txt >> s.txt
+        - cat s.txt
+    stage: test
+
+
+
+python:deploy:
+    cache: *python-cache
+    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+    script:
+        - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/52151/packages/pypi
+        - poetry publish --build --repository lrz --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD}
+    stage: publish
+    needs:
+        - python:test

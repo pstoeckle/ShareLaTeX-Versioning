@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "sharelatex-versioning"
+version = "0.1.0"
+description = ""
+authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+click = "*"
+pandas = "*"
+requests = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+sharelatex-versioning = 'sharelatex_versioning.main:main_group'
