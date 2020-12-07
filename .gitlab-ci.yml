@@ -23,7 +23,7 @@ python:setup:
     rules: &dependency-rules
         -   if: '$CI_COMMIT_BRANCH == "master"'
         -   if: '$CI_COMMIT_BRANCH == "development"'
-        -   changes:
+            changes:
                 - poetry.lock
                 - pyproject.toml
                 - .gitlab-ci.yml
