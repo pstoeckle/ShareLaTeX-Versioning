@@ -1,0 +1,86 @@
+stages:
+- pre-analysis
+- test
+- publish
+
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Scanning.gitlab-ci.yml
+  - template: SAST.gitlab-ci.yml
+  - template: Secret-Detection.gitlab-ci.yml
+
+variables:
+  ASDF_PYTHON_VERSION: "3.9"
+  DS_DEFAULT_ANALYZERS: "gemnasium-python"
+  LM_PYTHON_VERSION: "3"
+  SAST_DEFAULT_ANALYZERS: "bandit"
+
+sast:
+  stage: pre-analysis
+
+secret_detection:
+  stage: pre-analysis
+
+bandit-sast:
+  stage: pre-analysis
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  - if: '$CI_COMMIT_BRANCH == "development"'
+    changes:
+    - "src/sharelatex_versioning/**.py"
+    - .gitlab-ci.yml
+
+secret_detection_default_branch:
+  stage: pre-analysis
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "development"'
+
+gemnasium-python-dependency_scanning:
+  stage: pre-analysis
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  - changes:
+    - requirements.txt
+    - .gitlab-ci.yml
+
+license_scanning:
+  stage: pre-analysis
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  - changes:
+    - requirements.txt
+    - .gitlab-ci.yml
+
+python:test:
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+      junit: report.xml
+  coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
+  image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+  needs: []
+  rules:
+  - changes:
+    - "src/sharelatex_versioning/**.py"
+    - .gitlab-ci.yml
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  - if: '$CI_COMMIT_BRANCH == "development"'
+  script:
+    - poetry install
+    - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./src/sharelatex_versioning/tests
+    - head -n 2 coverage.xml >> t.txt
+    - tail -n 1 t.txt >> s.txt
+    - cat s.txt
+  stage: test
+
+
+python:deploy:
+  image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  script:
+    - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/52151/packages/pypi
+    - poetry publish --build --repository lrz --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD}
+  stage: publish
+  needs:
+  - python:test
