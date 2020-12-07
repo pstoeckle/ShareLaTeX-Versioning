@@ -1,7 +1,7 @@
 """
 Class.
 """
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 
 class Configuration(TypedDict):
