@@ -1,0 +1,25 @@
+{
+  "title": "JSON schema for theses applications",
+  "$schema": "http://json-schema.org/draft/2019-09/schema#",
+  "type": "object",
+  "properties": {
+    "sharelatex_url": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "password": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "username",
+    "password",
+    "sharelatex_url"
+  ]
+}
