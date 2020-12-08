@@ -1,7 +1,7 @@
 """
 Hash file.
 """
-from hashlib import sha1
+from hashlib import sha3_256
 from logging import getLogger
 from os.path import isfile, join
 from typing import Optional
@@ -18,7 +18,7 @@ def hash_file(file_name: str) -> str:
     """
     if not isfile(file_name):
         return ""
-    current_sha = sha1()
+    current_sha = sha3_256()
     with open(file_name, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             current_sha.update(chunk)
@@ -34,7 +34,7 @@ def hash_files_in_zip(zip_file: str) -> str:
     Returns:
 
     """
-    current_sha = sha1()
+    current_sha = sha3_256()
     with ZipFile(zip_file) as zip_ref:
         for name in zip_ref.namelist():
             with zip_ref.open(name) as current_file:

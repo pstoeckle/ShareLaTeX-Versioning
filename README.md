@@ -1,7 +1,7 @@
 # ShareLaTeX-Versioning
 
 The idea of this repository is pretty simple.
-You are writing your paper using [TUM's ShareLaTeX instance](https://sharelatex.tum.de).
+You are writing your paper using [TUM's ShareLaTeX instance](https://latex.tum.de).
 Although ShareLaTeX is cool, you also want to have your paper under git version control.
 Here, this tool comes into play.
 With this tool, you can download and extract your project with one command.
@@ -12,18 +12,10 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 ## General Setup
 
 1. Install [Python](https://www.python.org/downloads/)
-2. Clone this repository
-3. Navigate to the path of this repository
-4. Install all its dependencies.
+2. Install the package
 
     ```bash
-    pip install -r requirements.txt
-    ```
-
-5. Install the command-line script
-
-    ```bash
-    pip install -e .
+    pip install sharelatex-versioning --extra-index-url https://__token__:<your_personal_token>@gitlab.lrz.de/api/v4/projects/52151/packages/pypi/simple
     ```
 
     Now you should be able to call `sharelatex-versioning` within your shell.
@@ -31,19 +23,10 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 ## Repository Setup
 
 1. Open your ShareLaTeX project.
-2. Click on `Share`
-3. Click on `Turn on link sharing`
-4. You should see link
-
-    ```bash
-    https://sharelatex.tum.de/read/this_is_your_share_id
-    ```
-
-    Note the `share_id`.
 5. In the URL field of your browser, the link of your project should look like this.
 
     ```bash
-   https://sharelatex.tum.de/project/this-is-your-project-id
+   https://latex.tum.de/project/this-is-your-project-id
     ```
 
    Note the `project_id`
@@ -55,13 +38,15 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
     git init
     ```
 
-9. Create a file named `config.json`
+9. Create a file named `sv_config.json`
 10. Open that file and change it to
 
     ```json
     {
-      "share_id": "your_share_id",
-      "project_id": "your_project_id"
+        "project_id": "your_project_id",
+        "username": "your LRZ ID",
+        "password": "your password",
+        "sharelatex_url": "https://latex.tum.de/"
     }
     ```
 
@@ -72,11 +57,10 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 1. Run the command
 
     ```bash
-    sharelatex-versioning download-zip --in_file ./config.json
+    sharelatex-versioning download-zip --in_file ./sv_config.json
     ```
 
     Now, you should have a local copy of your ShareLaTeX project.
-2. Add all files to git
 3. Commit your changes
 
 ## Cron
@@ -93,7 +77,7 @@ You can also use this tool within a cron job to create every X minute a new comm
 3. Change the content to the following
 
     ```bash
-    sharelatex-versioning download-zip --in_file /path/to/config.json --working_dir /path/to/repository
+    sharelatex-versioning download-zip --in_file /path/to/sv_config.json --working_dir /path/to/repository
     cd /path/to/repository
     git commit -m "Update"
     ```
@@ -121,4 +105,4 @@ You can also use this tool within a cron job to create every X minute a new comm
 
 ## Contact
 
-If you have any question, please contact [Patrick Stoeckle](mailto:patrick.stoeckle@tum.de).
+If you have any question, please contact [Patrick Stöckle](mailto:patrick.stoeckle@tum.de).

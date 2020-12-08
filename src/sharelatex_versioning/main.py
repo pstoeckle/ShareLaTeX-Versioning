@@ -73,6 +73,7 @@ def download_zip(
     If you want, the script can also delete all the files which are no longer in your project.
     Thus, files deleted on the ShareLaTeX instance are also deleted locally.
     """
+    _print_version()
     download_zip_and_extract_content(force, in_file, white_list, working_dir)
 
 
@@ -82,6 +83,10 @@ def version():
 
     :return:
     """
+    _print_version()
+
+
+def _print_version() -> None:
     _LOGGER.info(f"sharelatex-versioning {__version__}")
 
 

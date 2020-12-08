@@ -10,28 +10,6 @@ include:
     -   template: SAST.gitlab-ci.yml
     -   template: Secret-Detection.gitlab-ci.yml
 
-python:setup:
-    artifacts:
-        paths:
-            - requirements.txt
-    cache: &python-cache
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - ".venv"
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    needs: [ ]
-    rules: &dependency-rules
-        -   if: '$CI_COMMIT_BRANCH == "master"'
-        -   if: '$CI_COMMIT_BRANCH == "development"'
-            changes:
-                - poetry.lock
-                - pyproject.toml
-                - .gitlab-ci.yml
-    script:
-        - poetry install
-        - poetry export > requirements.txt
-    stage: setup
-
 variables:
     ASDF_PYTHON_VERSION: "3.9"
     DS_DEFAULT_ANALYZERS: "gemnasium-python"
@@ -62,21 +40,29 @@ secret_detection_default_branch:
 
 gemnasium-python-dependency_scanning:
     stage: pre-analysis
-    rules: *dependency-rules
-    needs: &dependency-needs
-        - python:setup
+    rules: &dependency-rules
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+        -   if: '$CI_COMMIT_BRANCH == "development"'
+            changes:
+                - poetry.lock
+                - pyproject.toml
+                - .gitlab-ci.yml
+    needs: []
 
 license_scanning:
     stage: pre-analysis
     rules: *dependency-rules
-    needs: *dependency-needs
+    needs: []
 
 python:test:
     artifacts:
         reports:
             cobertura: coverage.xml
             junit: report.xml
-    cache: *python-cache
+    cache: &python-cache
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - ".venv"
     coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
