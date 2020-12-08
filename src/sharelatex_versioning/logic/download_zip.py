@@ -3,26 +3,22 @@ Download zip.
 """
 from fnmatch import fnmatch
 from functools import partial
-from hashlib import sha1
-from json import load
-from logging import INFO, basicConfig, getLogger
+from json import dumps, load, loads
+from json.decoder import JSONDecodeError
+from logging import getLogger
 from os import chmod, path, remove, sep, walk
-from os.path import isfile, join
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
-from typing import List, Optional
+from typing import List
 from zipfile import ZipFile
 
+from bs4 import BeautifulSoup
 from requests import Session
 
-from sharelatex_versioning.configuration import Configuration
+from sharelatex_versioning.classes.configuration import Configuration
+from sharelatex_versioning.logic.hash_file import are_there_new_changes
 
-basicConfig(
-    level=INFO,
-    format="%(asctime)s-%(levelname)s: %(message)s",
-    datefmt="%Y_%m_%d %H:%M",
-)
 _LOGGER = getLogger(__name__)
 
 
@@ -34,7 +30,7 @@ _DEFAULT_IGNORED_FILES = [
 ]
 
 
-def download_zip_implementation(
+def download_zip_and_extract_content(
     force: bool, in_file: str, white_list: str, working_dir: str
 ) -> None:
     """
@@ -53,8 +49,11 @@ def download_zip_implementation(
         work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
-        zip_file_location = _download_zip_file(data["project_id"], data["share_id"])
-        if not _are_there_new_changes(working_dir, zip_file_location):
+        zip_file_location = _download_zip_file(data)
+        if zip_file_location == "":
+            _LOGGER.critical("Aborting! There is no ZIP file.")
+            return
+        if not are_there_new_changes(working_dir, zip_file_location):
             remove(zip_file_location)
             return
         line_matcher = _create_line_matchers(
@@ -88,68 +87,6 @@ def download_zip_implementation(
         _LOGGER.critical("Error: Config was empty!")
 
 
-def hash_file(file_name: str) -> str:
-    """
-
-    :param file_name:
-    :return:
-    """
-    if not isfile(file_name):
-        return ""
-    current_sha = sha1()
-    with open(file_name, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            current_sha.update(chunk)
-    return current_sha.hexdigest()
-
-
-def hash_files_in_zip(zip_file: str) -> str:
-    """
-
-    Args:
-        zip_file:
-
-    Returns:
-
-    """
-    current_sha = sha1()
-    with ZipFile(zip_file) as zip_ref:
-        for name in zip_ref.namelist():
-            with zip_ref.open(name) as current_file:
-                for chunk in iter(lambda: current_file.read(4096), b""):
-                    current_sha.update(chunk)
-    hexdigest = current_sha.hexdigest()
-    _LOGGER.info(f"File {zip_file} -> {hexdigest}")
-    return hexdigest
-
-
-def _are_there_new_changes(working_dir: str, zip_file_location: str) -> bool:
-    """
-
-    Args:
-        working_dir:
-        zip_file_location:
-
-    Returns:
-
-    """
-    last_hash_file = join(working_dir, ".sharelatex_versioning")
-    last_hash: Optional[str] = None
-    if isfile(last_hash_file):
-        with open(last_hash_file) as f_read:
-            last_hash = f_read.read().strip()
-    current_hash = hash_files_in_zip(zip_file_location)
-    if last_hash is not None and current_hash == last_hash:
-        _LOGGER.info(
-            f"After hashing all files of the new zip, we got the same hash ({current_hash}) as for the last zip. No new changes..."
-        )
-        return False
-    else:
-        with open(last_hash_file, "w") as f_write:
-            f_write.write(current_hash)
-    return True
-
-
 def _replace_workdir(file_name: str, workdir: str) -> str:
     return file_name.replace(workdir, "")[1:]
 
@@ -176,19 +113,56 @@ def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
     return line_matcher
 
 
-def _download_zip_file(package_id: str, share_id: str) -> str:
+def _download_zip_file(configuration: Configuration) -> str:
     """
 
+    Args:
+        configuration:
+
+    Returns:
+
     """
+
     s = Session()
-    s.get(path.join("https://sharelatex.tum.de/read", share_id), allow_redirects=True)
-    r = s.get(
-        path.join("https://sharelatex.tum.de/project", package_id, "download/zip"),
-        allow_redirects=True,
-    )
-    tmp_path = path.join(gettempdir(), _TMP_ZIP_FILE_NAME)
-    open(tmp_path, "wb").write(r.content)
-    return tmp_path
+    login_url = path.join(configuration["sharelatex_url"], "ldap/login")
+    r = s.get(login_url, allow_redirects=True)
+    if r.status_code == 200:
+        csrf = BeautifulSoup(r.text, "html.parser").find("input", {"name": "_csrf"})[
+            "value"
+        ]
+        r2 = s.post(
+            login_url,
+            data={
+                "_csrf": csrf,
+                "login": configuration["username"],
+                "password": configuration["password"],
+            },
+        )
+        message = None
+        try:
+            message = loads(r2.text)
+        except JSONDecodeError:
+            _LOGGER.debug("Message is not JSON")
+            _LOGGER.debug(r2.text)
+        if r2.status_code == 200 and message is None:
+            download_path = path.join(
+                configuration["sharelatex_url"],
+                "project",
+                configuration["project_id"],
+                "download/zip",
+            )
+            r3 = s.get(download_path, allow_redirects=True)
+            if r3.status_code == 200:
+                tmp_path = path.join(gettempdir(), _TMP_ZIP_FILE_NAME)
+                open(tmp_path, "wb").write(r3.content)
+                return tmp_path
+            else:
+                _LOGGER.critical("Could not download the ZIP")
+                _LOGGER.critical(r3.text)
+        else:
+            _LOGGER.critical("Authentication failed!")
+            _LOGGER.critical(dumps(message))
+    return ""
 
 
 def _file_deletion(f: str, force: bool) -> None:

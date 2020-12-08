@@ -1,44 +1,25 @@
 """
 Stuff to clean things.
 """
-from os import path
+from logging import INFO, basicConfig, getLogger
+from sys import stdout
 from typing import Optional
 
 from click import group, option
-from pandas import read_csv
 
-from sharelatex_versioning.download_zip import download_zip_implementation
+from sharelatex_versioning import __version__
+from sharelatex_versioning.logic.download_zip import download_zip_and_extract_content
 
 __author__ = "Patrick Stoeckle"
 __copyright__ = "Patrick Stoeckle"
 __license__ = "mit"
 
-
-_IN_FILE_OPTION = option(
-    "--in_file",
-    "-i",
-    default="",
-    help="The path of a JSON file containing the information of the ShareLaTeX project.",
-)
-_WHITE_LIST_OPTION = option(
-    "--white_list",
-    "-w",
-    default=None,
-    help="The path of a file containing all the files which"
-    " are not part of the ShareLaTeX project, but should not be deleted. You can use UNIX "
-    "patterns.",
-)
-_FORCE_OPTION = option(
-    "--force",
-    "-f",
-    is_flag=True,
-    default=False,
-    help="If this flag is passed, all the files which are not part of the ShareLaTeX project "
-    "and not convered by .gitignore or the white_list option, are deleted.",
-)
-
-_WORKING_DIR_OPTION = option(
-    "--working_dir", "-d", default=".", help="The path of the working dir",
+_LOGGER = getLogger(__name__)
+basicConfig(
+    format="%(levelname)s: %(asctime)s: %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    level=INFO,
+    stream=stdout,
 )
 
 
@@ -50,28 +31,40 @@ def main_group() -> None:
     """
 
 
-@_IN_FILE_OPTION
-@main_group.command(name="convert_csv")
-def _convert_csv_entry(in_file: str) -> None:
-    """
-
-    :return:
-    """
-    if path.isfile(in_file):
-        data = read_csv(in_file)
-        for key in ["oncleanper", "afterapplicationper", "deltaper", "missingrulesper"]:
-            data[key] *= 100
-        data = data.round(1)
-        data.to_csv(in_file, sep=";")
-
-
-@_WORKING_DIR_OPTION
-@_WHITE_LIST_OPTION
-@_IN_FILE_OPTION
-@_FORCE_OPTION
+@option(
+    "--working_dir",
+    "-d",
+    default=".",
+    help="The path of the working dir",
+)
+@option(
+    "--white_list",
+    "-w",
+    default=None,
+    help="The path of a file containing all the files which"
+    " are not part of the ShareLaTeX project, but should not be deleted. You can use UNIX "
+    "patterns.",
+)
+@option(
+    "--in_file",
+    "-i",
+    default="",
+    help="The path of a JSON file containing the information of the ShareLaTeX project.",
+)
+@option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="If this flag is passed, all the files which are not part of the ShareLaTeX project "
+    "and not covered by .gitignore or the white_list option, are deleted.",
+)
 @main_group.command()
 def download_zip(
-    in_file: str, force: bool, white_list: Optional[str], working_dir: str
+    in_file: str,
+    force: bool,
+    white_list: Optional[str],
+    working_dir: str,
 ) -> None:
     """
     This command downloads your ShareLaTeX project as ZIP compressed file.
@@ -80,7 +73,16 @@ def download_zip(
     If you want, the script can also delete all the files which are no longer in your project.
     Thus, files deleted on the ShareLaTeX instance are also deleted locally.
     """
-    download_zip_implementation(force, in_file, white_list, working_dir)
+    download_zip_and_extract_content(force, in_file, white_list, working_dir)
+
+
+@main_group.command()
+def version():
+    """
+
+    :return:
+    """
+    _LOGGER.info(f"sharelatex-versioning {__version__}")
 
 
 if __name__ == "__main__":

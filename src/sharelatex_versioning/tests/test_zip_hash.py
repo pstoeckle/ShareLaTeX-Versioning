@@ -7,7 +7,7 @@ from os.path import join
 
 from pkg_resources import resource_filename
 
-from sharelatex_versioning.download_zip import hash_file, hash_files_in_zip
+from sharelatex_versioning.logic.hash_file import hash_file, hash_files_in_zip
 
 
 class MyTestCase(unittest.TestCase):
