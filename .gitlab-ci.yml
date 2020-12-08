@@ -11,9 +11,6 @@ include:
     -   template: Secret-Detection.gitlab-ci.yml
 
 python:setup:
-    artifacts:
-        paths:
-            - requirements.txt
     cache:
         key: ${CI_COMMIT_REF_SLUG}
         paths:
