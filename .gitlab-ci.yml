@@ -11,11 +11,13 @@ include:
     -   template: Secret-Detection.gitlab-ci.yml
 
 python:setup:
-    cache:
+    artifacts:
+        paths:
+            - requirements.txt
+    cache: &python-cache
         key: ${CI_COMMIT_REF_SLUG}
         paths:
-            - "requirements.txt"
-        policy: push
+            - ".venv"
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
     rules: &dependency-rules
@@ -59,12 +61,11 @@ secret_detection_default_branch:
     rules: *secret-detection-rules
 
 gemnasium-python-dependency_scanning:
-    cache: &python-requirements-cache
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - "requirements.txt"
-        policy: pull
     before_script:
+        - apt-get install -y curl
+        - URL="https://gitlab.lrz.de/i4/software/i4sharelatex-versioning/-/jobs/artifacts/$CI_COMMIT_BRANCH/download?job=python:setup"
+        - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" $URL'
+        - ls
         - cat requirements.txt
     stage: pre-analysis
     rules: *dependency-rules
@@ -81,10 +82,7 @@ python:test:
         reports:
             cobertura: coverage.xml
             junit: report.xml
-    cache: &python-cache
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - ".venv"
+    cache: *python-cache
     coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
