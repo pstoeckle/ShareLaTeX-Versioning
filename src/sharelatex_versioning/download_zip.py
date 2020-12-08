@@ -4,8 +4,9 @@ Download zip.
 from fnmatch import fnmatch
 from functools import partial
 from hashlib import sha1
-from json import load
-from logging import INFO, basicConfig, getLogger
+from json import dumps, load, loads
+from json.decoder import JSONDecodeError
+from logging import getLogger
 from os import chmod, path, remove, sep, walk
 from os.path import isfile, join
 from stat import S_IRUSR, S_IWUSR
@@ -14,15 +15,11 @@ from tempfile import gettempdir
 from typing import List, Optional
 from zipfile import ZipFile
 
+from bs4 import BeautifulSoup
 from requests import Session
 
 from sharelatex_versioning.configuration import Configuration
 
-basicConfig(
-    level=INFO,
-    format="%(asctime)s-%(levelname)s: %(message)s",
-    datefmt="%Y_%m_%d %H:%M",
-)
 _LOGGER = getLogger(__name__)
 
 
@@ -53,7 +50,7 @@ def download_zip_implementation(
         work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
-        zip_file_location = _download_zip_file(data["project_id"], data["share_id"])
+        zip_file_location = _download_zip_file(data)
         if not _are_there_new_changes(working_dir, zip_file_location):
             remove(zip_file_location)
             return
@@ -176,19 +173,54 @@ def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
     return line_matcher
 
 
-def _download_zip_file(package_id: str, share_id: str) -> str:
+def _download_zip_file(configuration: Configuration) -> str:
+    """
+    Args:
+        username:
+        password:
+        sharelatex_url:
     """
 
-    """
     s = Session()
-    s.get(path.join("https://sharelatex.tum.de/read", share_id), allow_redirects=True)
-    r = s.get(
-        path.join("https://sharelatex.tum.de/project", package_id, "download/zip"),
-        allow_redirects=True,
-    )
-    tmp_path = path.join(gettempdir(), _TMP_ZIP_FILE_NAME)
-    open(tmp_path, "wb").write(r.content)
-    return tmp_path
+    login_url = path.join(configuration["sharelatex_url"], "ldap/login")
+    r = s.get(login_url, allow_redirects=True)
+    if r.status_code == 200:
+        csrf = BeautifulSoup(r.text, "html.parser").find("input", {"name": "_csrf"})[
+            "value"
+        ]
+        r2 = s.post(
+            login_url,
+            data={
+                "_csrf": csrf,
+                "login": configuration["username"],
+                "password": configuration["password"],
+            },
+        )
+        message = None
+        try:
+            message = loads(r2.text)
+        except JSONDecodeError:
+            _LOGGER.debug("Message is not JSON")
+            _LOGGER.debug(r2.text)
+        if r2.status_code == 200 and message is None:
+            download_path = path.join(
+                configuration["sharelatex_url"],
+                "project",
+                configuration["project_id"],
+                "download/zip",
+            )
+            r3 = s.get(download_path, allow_redirects=True)
+            if r3.status_code == 200:
+                tmp_path = path.join(gettempdir(), _TMP_ZIP_FILE_NAME)
+                open(tmp_path, "wb").write(r3.content)
+                return tmp_path
+            else:
+                _LOGGER.critical("Could not download the ZIP")
+                _LOGGER.critical(r3.text)
+        else:
+            _LOGGER.critical("Authentication failed!")
+            _LOGGER.critical(dumps(message))
+    raise Exception("Could not download ZIP.")
 
 
 def _file_deletion(f: str, force: bool) -> None:
