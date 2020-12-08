@@ -14,10 +14,11 @@ python:setup:
     artifacts:
         paths:
             - requirements.txt
-    cache: &python-cache
+    cache:
         key: ${CI_COMMIT_REF_SLUG}
         paths:
-            - ".venv"
+            - "requirements.txt"
+        policy: push
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
     rules: &dependency-rules
@@ -61,11 +62,11 @@ secret_detection_default_branch:
     rules: *secret-detection-rules
 
 gemnasium-python-dependency_scanning:
-    before_script:
-        - URL="https://gitlab.lrz.de/i4/software/i4sharelatex-versioning/-/jobs/artifacts/$CI_COMMIT_BRANCH/download?job=python:setup"
-        - echo "$URL"
-        - 'wget --header "JOB-TOKEN: $CI_JOB_TOKEN" $URL -O requirements.txt'
-        - cat requirements.txt
+    cache: &python-requirements-cache
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - "requirements.txt"
+        policy: pull
     stage: pre-analysis
     rules: *dependency-rules
     needs: &dependency-needs
@@ -81,7 +82,10 @@ python:test:
         reports:
             cobertura: coverage.xml
             junit: report.xml
-    cache: *python-cache
+    cache: &python-cache
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - ".venv"
     coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
