@@ -64,7 +64,7 @@ gemnasium-python-dependency_scanning:
     before_script:
         - URL="https://gitlab.lrz.de/i4/software/i4sharelatex-versioning/-/jobs/artifacts/$CI_COMMIT_BRANCH/download?job=python:setup"
         - echo "$URL"
-        - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --location --verbose'
+        - 'wget --header "JOB-TOKEN: $CI_JOB_TOKEN" $URL -O requirements.txt'
         - cat requirements.txt
     stage: pre-analysis
     rules: *dependency-rules
