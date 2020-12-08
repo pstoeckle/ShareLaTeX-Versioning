@@ -9,5 +9,7 @@ class Configuration(TypedDict):
     Class.
     """
 
-    share_id: str
     project_id: str
+    username: str
+    password: str
+    sharelatex_url: str

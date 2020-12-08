@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "sharelatex-versioning"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 click = "*"
-pandas = "*"
 requests = "*"
+bs4 = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
