@@ -67,6 +67,8 @@ gemnasium-python-dependency_scanning:
         paths:
             - "requirements.txt"
         policy: pull
+    before_script:
+        - cat requirements.txt
     stage: pre-analysis
     rules: *dependency-rules
     needs: &dependency-needs
