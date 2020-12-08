@@ -8,7 +8,7 @@ from typing import Optional
 from click import group, option
 
 from sharelatex_versioning import __version__
-from sharelatex_versioning.download_zip import download_zip_implementation
+from sharelatex_versioning.logic.download_zip import download_zip_and_extract_content
 
 __author__ = "Patrick Stoeckle"
 __copyright__ = "Patrick Stoeckle"
@@ -73,7 +73,7 @@ def download_zip(
     If you want, the script can also delete all the files which are no longer in your project.
     Thus, files deleted on the ShareLaTeX instance are also deleted locally.
     """
-    download_zip_implementation(force, in_file, white_list, working_dir)
+    download_zip_and_extract_content(force, in_file, white_list, working_dir)
 
 
 @main_group.command()
