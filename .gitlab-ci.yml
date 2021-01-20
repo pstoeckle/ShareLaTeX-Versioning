@@ -126,3 +126,20 @@ python:deploy:
     stage: publish
     needs:
         - python:test
+
+pages:
+    artifacts:
+        paths:
+            - public
+    cache: *python-cache
+    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+    needs:
+        - python:test
+    rules: *python-rules
+    script:
+        - mkdir public
+        - poetry install
+        - poetry run mypy --html-report ./public/mypy ./src/sharelatex_versioning
+        - poetry run pytest --cov=sharelatex_versioning --cov-branch --cov-report=html ./src/sharelatex_versioning/tests
+        - mv htmlcov public
+    stage: publish
