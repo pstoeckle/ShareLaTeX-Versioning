@@ -7,6 +7,7 @@ from json import dumps, load, loads
 from json.decoder import JSONDecodeError
 from logging import getLogger
 from os import chmod, path, remove, sep, walk
+from os.path import isfile
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
@@ -15,7 +16,6 @@ from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
 from requests import Session
-
 from sharelatex_versioning.classes.configuration import Configuration
 from sharelatex_versioning.logic.hash_file import are_there_new_changes
 
@@ -92,7 +92,10 @@ def _replace_workdir(file_name: str, workdir: str) -> str:
 
 
 def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
-    with open(path.join(working_dir, _GIT_IGNORE_TXT)) as f_read:
+    git_ignore_path = path.join(working_dir, _GIT_IGNORE_TXT)
+    if not isfile(git_ignore_path):
+        return []
+    with open(git_ignore_path) as f_read:
         lines = f_read.readlines()
     lines = list(
         [
@@ -113,6 +116,10 @@ def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
     return line_matcher
 
 
+def _join_url(parts: List[str]) -> str:
+    return "/".join([p.strip("/") for p in parts])
+
+
 def _download_zip_file(configuration: Configuration) -> str:
     """
 
@@ -124,7 +131,7 @@ def _download_zip_file(configuration: Configuration) -> str:
     """
 
     s = Session()
-    login_url = path.join(configuration["sharelatex_url"], "ldap/login")
+    login_url = _join_url([configuration["sharelatex_url"], "ldap/login"])
     r = s.get(login_url, allow_redirects=True)
     if r.status_code == 200:
         csrf = BeautifulSoup(r.text, "html.parser").find("input", {"name": "_csrf"})[
@@ -145,11 +152,13 @@ def _download_zip_file(configuration: Configuration) -> str:
             _LOGGER.debug("Message is not JSON")
             _LOGGER.debug(r2.text)
         if r2.status_code == 200 and message is None:
-            download_path = path.join(
-                configuration["sharelatex_url"],
-                "project",
-                configuration["project_id"],
-                "download/zip",
+            download_path = _join_url(
+                [
+                    configuration["sharelatex_url"],
+                    "project",
+                    configuration["project_id"],
+                    "download/zip",
+                ]
             )
             r3 = s.get(download_path, allow_redirects=True)
             if r3.status_code == 200:
