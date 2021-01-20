@@ -65,12 +65,14 @@ python:quality:
         key: ${CI_COMMIT_REF_SLUG}
         paths:
             - ".venv"
+    coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs: [ ]
     script:
         - poetry install
         - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./src/sharelatex_versioning
         - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./src/sharelatex_versioning
+        - head -n 1 cobertura.xml
     stage: pre-analysis
 
 python:build:
