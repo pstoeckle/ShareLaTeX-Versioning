@@ -1,7 +1,10 @@
 """
 Class.
 """
-from typing import TypedDict
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
 
 
 class Configuration(TypedDict):
