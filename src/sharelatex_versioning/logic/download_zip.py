@@ -11,7 +11,7 @@ from os.path import isfile
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
-from typing import Callable, List
+from typing import Callable, List, Optional
 from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
@@ -28,7 +28,7 @@ _DEFAULT_IGNORED_FILES = [path.join(".git", "*"), ".git*", ".sharelatex_versioni
 
 
 def download_zip_and_extract_content(
-    force: bool, in_file: str, white_list: str, working_dir: str
+    force: bool, in_file: str, white_list: Optional[str], working_dir: str
 ) -> None:
     """
 
@@ -60,13 +60,13 @@ def download_zip_and_extract_content(
         with ZipFile(zip_file_location) as zip_ref:
             name_list = set(zip_ref.namelist())
         for root, dirs, files in walk(working_dir):
-            files = (path.join(root, f) for f in files)
-            files = (
+            files = list(path.join(root, f) for f in files)
+            files = list(
                 f
                 for f in files
                 if line_matcher(file_name=work_dir_replacer(file_name=f))
             )
-            files = (
+            files = list(
                 f for f in files if work_dir_replacer(file_name=f) not in name_list
             )
             for f in files:
@@ -92,8 +92,8 @@ def _replace_workdir(file_name: str, workdir: str) -> str:
 
 
 def _create_line_matchers(
-    in_file: str, white_list: str, working_dir: str
-) -> Callable[[str], bool]:
+    in_file: str, white_list: Optional[str], working_dir: str
+) -> Callable[..., bool]:
     git_ignore_path = path.join(working_dir, _GIT_IGNORE_TXT)
     if isfile(git_ignore_path):
         with open(git_ignore_path) as f_read:
