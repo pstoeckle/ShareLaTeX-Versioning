@@ -11,7 +11,7 @@ from os.path import isfile
 from stat import S_IRUSR, S_IWUSR
 from subprocess import call
 from tempfile import gettempdir
-from typing import List
+from typing import Callable, List
 from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
@@ -24,10 +24,7 @@ _LOGGER = getLogger(__name__)
 
 _TMP_ZIP_FILE_NAME = "test.zip"
 _GIT_IGNORE_TXT = ".gitignore"
-_DEFAULT_IGNORED_FILES = [
-    path.join(".git", "*"),
-    ".git*",
-]
+_DEFAULT_IGNORED_FILES = [path.join(".git", "*"), ".git*", ".sharelatex_versioning"]
 
 
 def download_zip_and_extract_content(
@@ -88,15 +85,21 @@ def download_zip_and_extract_content(
 
 
 def _replace_workdir(file_name: str, workdir: str) -> str:
-    return file_name.replace(workdir, "")[1:]
+    if file_name.startswith(workdir):
+        return file_name.replace(workdir, "", 1).lstrip(path.sep)
+    else:
+        return file_name
 
 
-def _create_line_matchers(in_file: str, white_list: str, working_dir: str):
+def _create_line_matchers(
+    in_file: str, white_list: str, working_dir: str
+) -> Callable[[str], bool]:
     git_ignore_path = path.join(working_dir, _GIT_IGNORE_TXT)
-    if not isfile(git_ignore_path):
-        return []
-    with open(git_ignore_path) as f_read:
-        lines = f_read.readlines()
+    if isfile(git_ignore_path):
+        with open(git_ignore_path) as f_read:
+            lines = f_read.readlines()
+    else:
+        lines = []
     lines = list(
         [
             current_line.strip()
