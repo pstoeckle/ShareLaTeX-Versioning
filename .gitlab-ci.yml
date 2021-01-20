@@ -11,7 +11,7 @@ include:
     -   template: Secret-Detection.gitlab-ci.yml
 
 variables:
-    ASDF_PYTHON_VERSION: "3.9"
+    ASDF_PYTHON_VERSION: "3.8.5"
     DS_DEFAULT_ANALYZERS: "gemnasium-python"
     LM_PYTHON_VERSION: "3"
     SAST_DEFAULT_ANALYZERS: "bandit"
