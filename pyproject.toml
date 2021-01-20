@@ -5,10 +5,10 @@ description = ""
 authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">3.7"
 click = "*"
 requests = "*"
-bs4 = "^0.0.1"
+bs4 = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
