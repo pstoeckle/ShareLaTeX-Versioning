@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "sharelatex-versioning"
-version = "0.1.6"
+version = "0.1.7"
 description = ""
 authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
 [tool.poetry.dependencies]
-python = ">3.7"
+python = ">3.7,<4.0"
 click = "*"
 requests = "*"
 bs4 = "*"
@@ -14,6 +14,22 @@ typing-extensions = {version = "*", optional = true}
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-cov = "*"
+mypy = "^0.790"
+lxml = "^4.6.2"
+flake8 = "^3.8.4"
+flake8-isort = "^4.0.0"
+flake8-string-format = "^0.3.0"
+flake8-rst-docstrings = "^0.0.14"
+flake8-broken-line = "^0.3.0"
+flake8-bandit = "^2.1.2"
+flake8-bugbear = "^20.11.1"
+flake8-builtins = "^1.5.3"
+flake8-comprehensions = "^3.3.1"
+flake8-docstrings = "^1.5.0"
+flake8-eradicate = "^1.0.0"
+flake8-pytest-style = "^1.3.0"
+flake8-gl-codeclimate = "^0.1.4"
+flake8-html = "^0.4.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
