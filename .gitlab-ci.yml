@@ -126,6 +126,7 @@ python:deploy:
     stage: publish
     needs:
         - python:test
+        - python:build
 
 pages:
     artifacts:
