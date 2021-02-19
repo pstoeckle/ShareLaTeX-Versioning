@@ -23,7 +23,19 @@ basicConfig(
 )
 
 
+def _print_version() -> None:
+    _LOGGER.info(f"sharelatex-versioning {__version__}")
+
+
 @group()
+@option(
+    "--version",
+    is_flag=True,
+    callback=_print_version,
+    expose_value=False,
+    is_eager=True,
+    help="Version",
+)
 def main_group() -> None:
     """
 
@@ -75,19 +87,6 @@ def download_zip(
     """
     _print_version()
     download_zip_and_extract_content(force, in_file, white_list, working_dir)
-
-
-@main_group.command()
-def version():
-    """
-
-    :return:
-    """
-    _print_version()
-
-
-def _print_version() -> None:
-    _LOGGER.info(f"sharelatex-versioning {__version__}")
 
 
 if __name__ == "__main__":
