@@ -31,7 +31,7 @@ bandit-sast:
         -   if: '$CI_COMMIT_BRANCH == "master"'
         -   if: '$CI_COMMIT_BRANCH == "development"'
             changes:
-                - "src/sharelatex_versioning/**.py"
+                - "sharelatex_versioning/**.py"
                 - .gitlab-ci.yml
 
 secret_detection_default_branch:
@@ -70,8 +70,8 @@ python:quality:
     needs: [ ]
     script:
         - poetry install
-        - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./src/sharelatex_versioning
-        - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./src/sharelatex_versioning
+        - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./sharelatex_versioning
+        - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
         - head -n 1 cobertura.xml
     stage: pre-analysis
 
@@ -86,7 +86,7 @@ python:build:
         - python:quality
     rules: &python-rules
         -   changes:
-                - "src/sharelatex_versioning/**.py"
+                - "sharelatex_versioning/**.py"
                 - .gitlab-ci.yml
         -   if: '$CI_COMMIT_BRANCH == "master"'
         -   if: '$CI_COMMIT_BRANCH == "development"'
@@ -109,7 +109,7 @@ python:test:
     rules: *python-rules
     script:
         - poetry install
-        - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./src/sharelatex_versioning/tests
+        - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./sharelatex_versioning/tests
         - head -n 2 coverage.xml >> t.txt
         - tail -n 1 t.txt >> s.txt
         - cat s.txt
@@ -139,7 +139,7 @@ pages:
     script:
         - mkdir public
         - poetry install
-        - poetry run mypy --html-report ./public/mypy ./src/sharelatex_versioning
-        - poetry run pytest --cov=sharelatex_versioning --cov-branch --cov-report=html ./src/sharelatex_versioning/tests
+        - poetry run mypy --html-report ./public/mypy ./sharelatex_versioning
+        - poetry run pytest --cov=sharelatex_versioning --cov-branch --cov-report=html ./sharelatex_versioning/tests
         - mv htmlcov public
     stage: publish

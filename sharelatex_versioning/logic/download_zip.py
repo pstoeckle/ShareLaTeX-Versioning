@@ -28,11 +28,16 @@ _DEFAULT_IGNORED_FILES = [path.join(".git", "*"), ".git*", ".sharelatex_versioni
 
 
 def download_zip_and_extract_content(
-    force: bool, in_file: str, white_list: Optional[str], working_dir: str
+    force: bool,
+    in_file: str,
+    white_list: Optional[str],
+    working_dir: str,
+    password: Optional[str],
 ) -> None:
     """
 
     Args:
+        password:
         working_dir:
         force:
         in_file:
@@ -46,7 +51,7 @@ def download_zip_and_extract_content(
         work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
-        zip_file_location = _download_zip_file(data)
+        zip_file_location = _download_zip_file(data, password)
         if zip_file_location == "":
             _LOGGER.critical("Aborting! There is no ZIP file.")
             return
@@ -123,10 +128,11 @@ def _join_url(parts: List[str]) -> str:
     return "/".join([p.strip("/") for p in parts])
 
 
-def _download_zip_file(configuration: Configuration) -> str:
+def _download_zip_file(configuration: Configuration, password: Optional[str]) -> str:
     """
 
     Args:
+        password:
         configuration:
 
     Returns:
@@ -136,6 +142,7 @@ def _download_zip_file(configuration: Configuration) -> str:
     s = Session()
     login_url = _join_url([configuration["sharelatex_url"], "ldap/login"])
     r = s.get(login_url, allow_redirects=True)
+    current_password = password if password is not None else configuration["password"]
     if r.status_code == 200:
         csrf = BeautifulSoup(r.text, "html.parser").find("input", {"name": "_csrf"})[
             "value"
@@ -145,7 +152,7 @@ def _download_zip_file(configuration: Configuration) -> str:
             data={
                 "_csrf": csrf,
                 "login": configuration["username"],
-                "password": configuration["password"],
+                "password": current_password,
             },
         )
         message = None
