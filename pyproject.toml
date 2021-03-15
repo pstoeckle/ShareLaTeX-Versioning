@@ -10,6 +10,7 @@ click = "*"
 requests = "*"
 bs4 = "*"
 typing-extensions = {version = "*", optional = true}
+keyring = "^23.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
