@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sharelatex-versioning"
-version = "0.1.7"
+version = "0.1.8"
 description = ""
 authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
@@ -10,6 +10,7 @@ click = "*"
 requests = "*"
 bs4 = "*"
 typing-extensions = {version = "*", optional = true}
+keyring = "^23.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

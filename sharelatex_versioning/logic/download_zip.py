@@ -16,6 +16,8 @@ from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
 from requests import Session
+
+from password_handling import get_password_from_keyring
 from sharelatex_versioning.classes.configuration import Configuration
 from sharelatex_versioning.logic.hash_file import are_there_new_changes
 
@@ -27,17 +29,10 @@ _GIT_IGNORE_TXT = ".gitignore"
 _DEFAULT_IGNORED_FILES = [path.join(".git", "*"), ".git*", ".sharelatex_versioning"]
 
 
-def download_zip_and_extract_content(
-    force: bool,
-    in_file: str,
-    white_list: Optional[str],
-    working_dir: str,
-    password: Optional[str],
-) -> None:
+def download_zip_and_extract_content(force: bool, in_file: str, white_list: Optional[str], working_dir: str) -> None:
     """
 
     Args:
-        password:
         working_dir:
         force:
         in_file:
@@ -51,7 +46,7 @@ def download_zip_and_extract_content(
         work_dir_replacer = partial(_replace_workdir, workdir=working_dir)
         with open(in_file) as f_read:
             data: Configuration = load(f_read)
-        zip_file_location = _download_zip_file(data, password)
+        zip_file_location = _download_zip_file(data)
         if zip_file_location == "":
             _LOGGER.critical("Aborting! There is no ZIP file.")
             return
@@ -128,11 +123,10 @@ def _join_url(parts: List[str]) -> str:
     return "/".join([p.strip("/") for p in parts])
 
 
-def _download_zip_file(configuration: Configuration, password: Optional[str]) -> str:
+def _download_zip_file(configuration: Configuration) -> str:
     """
 
     Args:
-        password:
         configuration:
 
     Returns:
@@ -142,17 +136,21 @@ def _download_zip_file(configuration: Configuration, password: Optional[str]) ->
     s = Session()
     login_url = _join_url([configuration["sharelatex_url"], "ldap/login"])
     r = s.get(login_url, allow_redirects=True)
-    current_password = password if password is not None else configuration["password"]
+    user_name = configuration["username"]
+    password = get_password_from_keyring(user_name)
+    if password is None:
+        return ""
     if r.status_code == 200:
         csrf = BeautifulSoup(r.text, "html.parser").find("input", {"name": "_csrf"})[
             "value"
         ]
+
         r2 = s.post(
             login_url,
             data={
                 "_csrf": csrf,
-                "login": configuration["username"],
-                "password": current_password,
+                "login": user_name,
+                "password": password,
             },
         )
         message = None
