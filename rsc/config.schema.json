@@ -11,15 +11,11 @@
     },
     "username": {
       "type": "string"
-    },
-    "password": {
-      "type": "string"
     }
   },
   "required": [
     "project_id",
     "username",
-    "password",
     "sharelatex_url"
   ]
 }

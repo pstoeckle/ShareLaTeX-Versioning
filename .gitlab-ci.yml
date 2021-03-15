@@ -74,6 +74,12 @@ python:quality:
         - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
         - head -n 1 cobertura.xml
     stage: pre-analysis
+    rules: &python-rules
+        -   changes:
+                - "sharelatex_versioning/**.py"
+                - .gitlab-ci.yml
+        -   if: '$CI_COMMIT_BRANCH == "master"'
+        -   if: '$CI_COMMIT_BRANCH == "development"'
 
 python:build:
     artifacts:
@@ -84,12 +90,7 @@ python:build:
     image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs:
         - python:quality
-    rules: &python-rules
-        -   changes:
-                - "sharelatex_versioning/**.py"
-                - .gitlab-ci.yml
-        -   if: '$CI_COMMIT_BRANCH == "master"'
-        -   if: '$CI_COMMIT_BRANCH == "development"'
+    rules: *python-rules
     script:
         - poetry install --no-dev
         - poetry build
