@@ -7,9 +7,9 @@ from typing import Any, Optional
 
 from click import Context, echo, group, option
 
-from password_handling import store_password
 from sharelatex_versioning import __version__
 from sharelatex_versioning.logic.download_zip import download_zip_and_extract_content
+from sharelatex_versioning.utils.password_handling import store_password
 
 __author__ = "Patrick Stoeckle"
 __copyright__ = "Patrick Stoeckle"
