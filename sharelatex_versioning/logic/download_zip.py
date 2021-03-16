@@ -17,9 +17,9 @@ from zipfile import ZipFile
 from bs4 import BeautifulSoup
 from requests import Session
 
-from password_handling import get_password_from_keyring
 from sharelatex_versioning.classes.configuration import Configuration
 from sharelatex_versioning.logic.hash_file import are_there_new_changes
+from sharelatex_versioning.utils.password_handling import get_password_from_keyring
 
 _LOGGER = getLogger(__name__)
 
@@ -29,7 +29,9 @@ _GIT_IGNORE_TXT = ".gitignore"
 _DEFAULT_IGNORED_FILES = [path.join(".git", "*"), ".git*", ".sharelatex_versioning"]
 
 
-def download_zip_and_extract_content(force: bool, in_file: str, white_list: Optional[str], working_dir: str) -> None:
+def download_zip_and_extract_content(
+    force: bool, in_file: str, white_list: Optional[str], working_dir: str
+) -> None:
     """
 
     Args:
