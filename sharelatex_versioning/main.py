@@ -105,7 +105,7 @@ def download_zip(
     "-p",
     prompt=True,
     hide_input=True,
-    help="The password for the IMAP/SMTP server.",
+    help="The password for the Overleaf/ShareLaTex instance.",
 )
 @option(
     "--force",
