@@ -45,12 +45,18 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
     {
         "project_id": "your_project_id",
         "username": "your LRZ ID",
-        "password": "your password",
         "sharelatex_url": "https://latex.tum.de/"
     }
     ```
 
     Replace the placeholders with your values.
+11. Store the password in the password manager using [keyring](https://pypi.org/project/keyring/).
+
+   ```bash
+   sharelatex-versioning store-password-in-password-manager --user_name "your LRZ ID" --password "your password" 
+   ```
+
+   Afterward, the password should be in the password manager, e.g., in the Keychain on macOS.
 
 ## Creating a commit
 
