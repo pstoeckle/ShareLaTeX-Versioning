@@ -1,5 +1,7 @@
 # ShareLaTeX-Versioning
 
+[[_TOC_]]
+
 The idea of this repository is pretty simple.
 You are writing your paper using [TUM's ShareLaTeX instance](https://latex.tum.de).
 Although ShareLaTeX is cool, you also want to have your paper under git version control.
@@ -57,6 +59,7 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
    ```
 
    Afterward, the password should be in the password manager, e.g., in the Keychain on macOS.
+   For deleting the password again, c.f. [here](#store-password-in-password-manager).
 
 ## Creating a commit
 
@@ -108,6 +111,77 @@ You can also use this tool within a cron job to create every X minute a new comm
    ```
 
     Now, every 10 minute, there will be a commit with the new changes to your ShareLaTeX project.
+
+## Command line usage
+
+```bash
+sharelatex-versioning --help
+Usage: sharelatex-versioning [OPTIONS] COMMAND [ARGS]...
+
+  :return:
+
+Options:
+  --version  Version
+  --help     Show this message and exit.
+
+Commands:
+  download-zip                    This command downloads your ShareLaTeX...
+  store-password-in-password-manager
+                                  Stores the password in the password...
+```
+
+### Download ZIP
+
+```bash
+sharelatex-versioning download-zip --help
+Usage: sharelatex-versioning download-zip [OPTIONS]
+
+  This command downloads your ShareLaTeX project as ZIP compressed file.
+  Next, the zip folder is extracted into the current directory. All files
+  are made readonly as the local repository should not be the place to edit
+  the files. If you want, the script can also delete all the files which are
+  no longer in your project. Thus, files deleted on the ShareLaTeX instance
+  are also deleted locally.
+
+Options:
+  -f, --force             If this flag is passed, all the files which are not
+                          part of the ShareLaTeX project and not covered by
+                          .gitignore or the white_list option, are deleted.
+
+  -i, --in_file TEXT      The path of a JSON file containing the information
+                          of the ShareLaTeX project.
+
+  -w, --white_list TEXT   The path of a file containing all the files which
+                          are not part of the ShareLaTeX project, but should
+                          not be deleted. You can use UNIX patterns.
+
+  -d, --working_dir TEXT  The path of the working dir
+  --help                  Show this message and exit.
+```
+
+### Store Password In Password Manager
+
+```bash
+sharelatex-versioning store-password-in-password-manager --help
+Usage: sharelatex-versioning store-password-in-password-manager
+           [OPTIONS]
+
+  Stores the password in the password manager.
+
+Options:
+  -f, --force           If true, we will overwrite existing passwords.
+  -p, --password TEXT   The password for the Overleaf/ShareLaTex instance.
+  -u, --user_name TEXT  The username
+  --help                Show this message and exit.
+```
+
+In case, you -- *cough, cough* @jordan -- want to delete the password again, you can use the [Windows Credential Manager](https://kb.intermedia.net/Article/44527) or [Keychain](https://www.wikihow.com/Delete-Saved-Passwords-from-the-iCloud-Keychain-on-macOS).
+
+#### Store Password In Password Manager: Example
+
+```bash
+sharelatex-versioning store-password-in-password-manager --user_name "your LRZ ID" --password "your password"
+```
 
 ## Contact
 
