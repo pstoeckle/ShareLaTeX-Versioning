@@ -21,6 +21,15 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
     ```
 
     Now you should be able to call `sharelatex-versioning` within your shell.
+    We created a token for the quick setup.
+    You can use this if you want.
+
+    ```bash
+    pip install sharelatex-versioning --extra-index-url https://i4-student:zYyCuhx15tShf5EhRKyo@gitlab.lrz.de/api/v4/projects/52151/packages/pypi/simple
+    ```
+
+    **Attention**: On macOS, `pip` is usually the installer of the Python2 instance.
+    Please use `pip3` or `pip3.x` in this case.
 
 ## Repository Setup
 
@@ -55,7 +64,7 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 11. Store the password in the password manager using [keyring](https://pypi.org/project/keyring/).
 
    ```bash
-   sharelatex-versioning store-password-in-password-manager --user_name "your LRZ ID" --password "your password" 
+   sharelatex-versioning store-password-in-password-manager --user_name "your LRZ ID" --password "your password"
    ```
 
    Afterward, the password should be in the password manager, e.g., in the Keychain on macOS.
