@@ -15,7 +15,6 @@ cache:
 python:quality:
   artifacts:
     reports:
-      codequality: flake8.json
       cobertura: cobertura.xml
       junit: mypy.xml
     expire_in: 10 days
@@ -23,7 +22,6 @@ python:quality:
   needs: [ ]
   script:
     - poetry install
-    - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./sharelatex_versioning
     - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
     - head -n 1 cobertura.xml
   stage: pre-analysis
