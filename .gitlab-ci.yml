@@ -1,136 +1,92 @@
 stages:
-    - pre-analysis
-    - build
-    - test
-    - publish
+  - pre-analysis
+  - test
+  - package
+  - deploy
+  - publish
 
-include:
-    -   template: Dependency-Scanning.gitlab-ci.yml
-    -   template: License-Scanning.gitlab-ci.yml
-    -   template: SAST.gitlab-ci.yml
+image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
 
-variables:
-    ASDF_PYTHON_VERSION: "3.8.5"
-    DS_DEFAULT_ANALYZERS: "gemnasium-python"
-    LM_PYTHON_VERSION: "3"
-    SAST_DEFAULT_ANALYZERS: "bandit"
-
-sast:
-    stage: pre-analysis
-
-bandit-sast:
-    stage: pre-analysis
-    rules:
-        -   if: '$CI_COMMIT_BRANCH == "master"'
-        -   if: '$CI_COMMIT_BRANCH == "development"'
-            changes:
-                - "sharelatex_versioning/**.py"
-                - .gitlab-ci.yml
-
-gemnasium-python-dependency_scanning:
-    stage: pre-analysis
-    rules: &dependency-rules
-        -   if: '$CI_COMMIT_BRANCH == "master"'
-        -   if: '$CI_COMMIT_BRANCH == "development"'
-            changes:
-                - poetry.lock
-                - pyproject.toml
-                - .gitlab-ci.yml
-    needs: [ ]
-
-license_scanning:
-    stage: pre-analysis
-    rules: *dependency-rules
-    needs: [ ]
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - ".venv"
 
 python:quality:
-    artifacts:
-        reports:
-            codequality: flake8.json
-            cobertura: cobertura.xml
-            junit: mypy.xml
-        expire_in: 10 days
-    cache: &python-cache
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - ".venv"
-    coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    needs: [ ]
-    script:
-        - poetry install
-        - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./sharelatex_versioning
-        - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
-        - head -n 1 cobertura.xml
-    stage: pre-analysis
-    rules: &python-rules
-        -   changes:
-                - "sharelatex_versioning/**.py"
-                - .gitlab-ci.yml
-        -   if: '$CI_COMMIT_BRANCH == "master"'
-        -   if: '$CI_COMMIT_BRANCH == "development"'
-
-python:build:
-    artifacts:
-        paths:
-            - dist
-        expire_in: 3 days
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    needs:
-        - python:quality
-    rules: *python-rules
-    script:
-        - poetry install --no-dev
-        - poetry build
-    stage: build
+  artifacts:
+    reports:
+      codequality: flake8.json
+      cobertura: cobertura.xml
+      junit: mypy.xml
+    expire_in: 10 days
+  coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
+  needs: [ ]
+  script:
+    - poetry install
+    - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json ./sharelatex_versioning
+    - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
+    - head -n 1 cobertura.xml
+  stage: pre-analysis
+  rules: &python-rules
+    -   changes:
+          - "sharelatex_versioning/**.py"
+          - .gitlab-ci.yml
+    -   if: '$CI_COMMIT_BRANCH == "main"'
+    -   if: '$CI_COMMIT_BRANCH == "development"'
+    -   if: '$CI_COMMIT_TAG'
 
 python:test:
-    artifacts:
-        reports:
-            cobertura: coverage.xml
-            junit: report.xml
-        expire_in: 10 days
-    cache: *python-cache
-    coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    needs:
-        - python:build
-    rules: *python-rules
-    script:
-        - poetry install
-        - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./sharelatex_versioning/tests
-        - head -n 2 coverage.xml >> t.txt
-        - tail -n 1 t.txt >> s.txt
-        - cat s.txt
-    stage: test
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+      junit: report.xml
+    expire_in: 10 days
+  coverage: '/line-rate="0.([0-9]{1,2})\d*"/'
+  needs:
+  - python:quality
+  rules: *python-rules
+  script:
+    - poetry install
+    - poetry run pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./sharelatex_versioning/tests
+    - head -n 2 coverage.xml >> t.txt
+    - tail -n 1 t.txt >> s.txt
+    - cat s.txt
+  stage: test
+
+python:package:
+  artifacts:
+    paths:
+      - dist
+    expire_in: 3 days
+  needs:
+    - python:test
+  rules: &package-rules
+    - if: '$CI_COMMIT_TAG'
+  script:
+    - poetry install --no-dev
+    - poetry build
+  stage: package
 
 python:deploy:
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    rules:
-        -   if: '$CI_COMMIT_BRANCH == "master"'
+    rules: *package-rules
     script:
-        - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/52151/packages/pypi
-        - poetry publish --repository lrz --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD}
-    stage: publish
+        - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
+        - poetry publish --repository lrz --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD
+    stage: deploy
     needs:
-        - python:test
-        - python:build
+        - python:package
 
 pages:
-    artifacts:
-        paths:
-            - public
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    needs:
-        - python:test
-    rules: *python-rules
-    script:
-        - mkdir public
-        - poetry install
-        - poetry run mypy --html-report ./public/mypy ./sharelatex_versioning
-        - poetry run pytest --cov=sharelatex_versioning --cov-branch --cov-report=html ./sharelatex_versioning/tests
-        - mv htmlcov public
-    stage: publish
+  artifacts:
+    paths:
+      - public
+  needs:
+    - python:test
+  rules: *python-rules
+  script:
+    - mkdir public
+    - poetry install
+    - poetry run mypy --html-report ./public/mypy ./sharelatex_versioning
+    - poetry run pytest --cov=sharelatex_versioning --cov-branch --cov-report=html ./sharelatex_versioning/tests
+    - mv htmlcov public
+  stage: publish
