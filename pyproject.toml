@@ -1,16 +1,19 @@
 [tool.poetry]
 name = "sharelatex-versioning"
-version = "0.1.10"
+version = "0.1.11"
 description = ""
-authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
+authors = ["Patrick Stöckle <patrick.stoeckle@tum.de>"]
+maintainers = ["Patrick Stöckle <patrick.stoeckle@tum.de>"]
+repository = "git@gitlab.lrz.de:i4/software/sharelatex-versioning.git"
+readme = "README.md"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">3.7,<4.0"
-click = "*"
-requests = "*"
-bs4 = "*"
-typing-extensions = {version = "*", optional = true}
+requests = "^2.27.1"
+bs4 = "^0.0.1"
 keyring = "^23.0.0"
+typer = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -37,4 +40,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-sharelatex-versioning = 'sharelatex_versioning.main:main_group'
+sharelatex-versioning = 'sharelatex_versioning.main:app'

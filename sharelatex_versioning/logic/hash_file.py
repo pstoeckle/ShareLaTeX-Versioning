@@ -3,23 +3,26 @@ Hash file.
 """
 from hashlib import sha3_256
 from logging import getLogger
-from os.path import isfile, join
+from pathlib import Path
 from typing import Optional
 from zipfile import ZipFile
+
+from sharelatex_versioning.classes.cache import Cache
+from typer import echo
 
 _LOGGER = getLogger(__name__)
 
 
-def hash_file(file_name: str) -> str:
+def hash_file(file_name: Path) -> str:
     """
 
     :param file_name:
     :return:
     """
-    if not isfile(file_name):
+    if not file_name.is_file():
         return ""
     current_sha = sha3_256()
-    with open(file_name, "rb") as f:
+    with file_name.open("rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             current_sha.update(chunk)
     return current_sha.hexdigest()
@@ -45,28 +48,19 @@ def hash_files_in_zip(zip_file: str) -> str:
     return hexdigest
 
 
-def are_there_new_changes(working_dir: str, zip_file_location: str) -> bool:
+def are_there_new_changes(zip_file_location: Path, cache: Cache) -> bool:
     """
 
     Args:
-        working_dir:
         zip_file_location:
+        cache:
 
     Returns:
 
     """
-    last_hash_file = join(working_dir, ".sharelatex_versioning")
-    last_hash: Optional[str] = None
-    if isfile(last_hash_file):
-        with open(last_hash_file) as f_read:
-            last_hash = f_read.read().strip()
-    current_hash = hash_files_in_zip(zip_file_location)
-    if last_hash is not None and current_hash == last_hash:
-        _LOGGER.info(
-            f"After hashing all files of the new zip, we got the same hash ({current_hash}) as for the last zip. No new changes..."
-        )
+    current_hash = hash_files_in_zip(str(zip_file_location))
+    if cache.old_hash is not None and current_hash == cache.old_hash:
         return False
     else:
-        with open(last_hash_file, "w") as f_write:
-            f_write.write(current_hash)
-    return True
+        cache.old_hash = current_hash
+        return True

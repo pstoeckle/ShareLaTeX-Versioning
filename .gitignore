@@ -49,3 +49,5 @@ MANIFEST
 # Per-project virtualenvs
 .venv*/
 report.xml
+cobertura.xml
+mypy.xml
