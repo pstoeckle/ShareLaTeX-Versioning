@@ -1,7 +1,5 @@
 # ShareLaTeX-Versioning
 
-[[_TOC_]]
-
 The idea of this repository is pretty simple.
 You are writing your paper using [TUM's ShareLaTeX instance](https://latex.tum.de).
 Although ShareLaTeX is cool, you also want to have your paper under git version control.
@@ -17,16 +15,10 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 2. Install the package
 
     ```bash
-    pip install sharelatex-versioning --extra-index-url https://__token__:<your_personal_token>@gitlab.lrz.de/api/v4/projects/52151/packages/pypi/simple
+    pip install sharelatex-versioning
     ```
 
     Now you should be able to call `sharelatex-versioning` within your shell.
-    We created a token for the quick setup.
-    You can use this if you want.
-
-    ```bash
-    pip install sharelatex-versioning --extra-index-url https://i4-student:zYyCuhx15tShf5EhRKyo@gitlab.lrz.de/api/v4/projects/52151/packages/pypi/simple
-    ```
 
     **Attention**: On macOS, `pip` is usually the installer of the Python2 instance.
     Please use `pip3` or `pip3.x` in this case.
@@ -184,7 +176,7 @@ Options:
   --help                Show this message and exit.
 ```
 
-In case, you -- *cough, cough* @jordan -- want to delete the password again, you can use the [Windows Credential Manager](https://kb.intermedia.net/Article/44527) or [Keychain](https://www.wikihow.com/Delete-Saved-Passwords-from-the-iCloud-Keychain-on-macOS).
+In case, you want to delete the password again, you can use the [Windows Credential Manager](https://kb.intermedia.net/Article/44527) or [Keychain](https://www.wikihow.com/Delete-Saved-Passwords-from-the-iCloud-Keychain-on-macOS).
 
 #### Store Password In Password Manager: Example
 
@@ -194,4 +186,4 @@ sharelatex-versioning store-password-in-password-manager --user_name "your LRZ I
 
 ## Contact
 
-If you have any question, please contact [Patrick Stöckle](mailto:patrick.stoeckle@tum.de).
+If you have any question, please contact [Patrick Stöckle](mailto:patrick.stoeckle@posteo.de).
