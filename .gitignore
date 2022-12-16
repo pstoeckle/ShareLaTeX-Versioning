@@ -51,3 +51,4 @@ MANIFEST
 report.xml
 cobertura.xml
 mypy.xml
+.mypy_cache/
