@@ -1,7 +1,7 @@
 # ShareLaTeX-Versioning
 
 The idea of this repository is pretty simple.
-You are writing your paper using [TUM's ShareLaTeX instance](https://latex.tum.de).
+You are writing your paper using [TUM's ShareLaTeX instance](https://sharelatex.tum.de).
 Although ShareLaTeX is cool, you also want to have your paper under git version control.
 Here, this tool comes into play.
 With this tool, you can download and extract your project with one command.
@@ -29,7 +29,7 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
 5. In the URL field of your browser, the link of your project should look like this.
 
     ```bash
-   https://latex.tum.de/project/this-is-your-project-id
+   https://sharelatex.tum.de/project/this-is-your-project-id
     ```
 
    Note the `project_id`
@@ -48,7 +48,7 @@ This is especially handy when you delete files in ShareLaTeX and you want them a
     {
         "project_id": "your_project_id",
         "username": "your LRZ ID",
-        "sharelatex_url": "https://latex.tum.de/"
+        "sharelatex_url": "https://sharelatex.tum.de/"
     }
     ```
 

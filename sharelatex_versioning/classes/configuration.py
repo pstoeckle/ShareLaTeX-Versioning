@@ -12,4 +12,4 @@ class Configuration(object):
 
     project_id: str
     username: str
-    sharelatex_url: str = "https://latex.tum.de/"
+    sharelatex_url: str = "https://sharelatex.tum.de/"
