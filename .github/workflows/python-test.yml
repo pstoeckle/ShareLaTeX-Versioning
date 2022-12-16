@@ -1,0 +1,30 @@
+name: Upload Python Package
+
+on:
+  push:
+    paths:
+      - ".github/workflows/python-test.yml"
+      - "pyproject.toml"
+      - "sharelatex_versioning/**/*.py"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    container:
+      image: tumi4/python-3.9-bullseye-poetry-1.2.1
+      options: --user 1001
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies and test typing
+        run: |
+          poetry install
+          poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: typing-coverage-report
+          path: cobertura.xml
