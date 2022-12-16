@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Python tests
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  mypy:
     container:
       image: tumi4/python-3.9-bullseye-poetry-1.2.1
       options: --user 1001
@@ -23,8 +23,19 @@ jobs:
         run: |
           poetry install
           poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
-      - name: Archive code coverage results
+      - name: Archive typing coverage results
         uses: actions/upload-artifact@v3
         with:
           name: typing-coverage-report
           path: cobertura.xml
+        if: ${{ always() }}
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: cobertura.xml
+          badge: true
+          fail_below_min: true
+          format: markdown
+          indicators: true
+          output: both
+          thresholds: '60 80'
