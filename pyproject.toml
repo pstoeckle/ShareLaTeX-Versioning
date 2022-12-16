@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sharelatex-versioning"
-version = "0.1.12"
+version = "0.1.13"
 description = "Tool to backup ShareLaTeX files locally."
 authors = ["Patrick Stöckle <patrick.stoeckle@posteo.de>"]
 maintainers = ["Patrick Stöckle <patrick.stoeckle@posteo.de>"]
