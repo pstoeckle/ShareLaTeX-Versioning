@@ -1,5 +1,8 @@
 # ShareLaTeX-Versioning
 
+**The code in this repository can only pull from ShareLaTeX/Overleaf.**
+**For a more sophisticated version, have a look at [python-sharelatex](https://gitlab.inria.fr/sed-rennes/sharelatex/python-sharelatex)**
+
 The idea of this repository is pretty simple.
 You are writing your paper using [TUM's ShareLaTeX instance](https://sharelatex.tum.de).
 Although ShareLaTeX is cool, you also want to have your paper under git version control.
