@@ -37,7 +37,7 @@ jobs:
         run: |
           uv run -- mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty ./sharelatex_versioning
       - name: Archive typing coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: typing-coverage-report
           path: cobertura.xml
@@ -46,7 +46,7 @@ jobs:
         run: |
           uv run -- pytest --junitxml report.xml --cov=sharelatex_versioning --cov-report xml ./tests
       - name: Archive test coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
           path: coverage.xml
