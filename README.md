@@ -1,5 +1,5 @@
 <!--
-Copyright © Patrick Stoeckle 2020 - 2022
+Copyright © Patrick Stoeckle 2020 - 2025
 
 Licensed under the Apache License License 2.0
 

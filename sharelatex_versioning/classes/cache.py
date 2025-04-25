@@ -1,4 +1,4 @@
-# Copyright © Patrick Stoeckle 2021 - 2022
+# Copyright © Patrick Stoeckle 2021 - 2025
 #
 # Licensed under the Apache License License 2.0
 #

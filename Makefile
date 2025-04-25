@@ -1,12 +1,15 @@
-format:
+sync:
+	uv sync
+
+format: sync
 	uv run -- ruff format
 	uv run -- ruff check --fix
 
-lint:
+lint: sync
 	uv run -- ruff check
 	uv run -- mypy sharelatex_versioning
 
-test:
+test: sync
 	uv run -- pytest
 
 all: format lint test

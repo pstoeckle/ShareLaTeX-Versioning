@@ -739,7 +739,7 @@ dev = [
     { name = "pytest", specifier = "==8.3.5" },
     { name = "pytest-cov", specifier = "==6.1.1" },
     { name = "ruff", specifier = "==0.11.5" },
-    { name = "types-requests", specifier = ">=2.32.0.20250328" },
+    { name = "types-requests", specifier = "==2.32.0.20250328" },
 ]
 
 [[package]]
