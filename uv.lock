@@ -762,7 +762,7 @@ wheels = [
 
 [[package]]
 name = "sharelatex-versioning"
-version = "0.1.13"
+version = "0.1.15"
 source = { editable = "." }
 dependencies = [
     { name = "bs4" },
@@ -793,7 +793,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "lxml", specifier = ">=5.4.0" },
+    { name = "lxml", specifier = "==5.4.0" },
     { name = "mypy", specifier = "==1.15.0" },
     { name = "pre-commit", specifier = "==4.2.0" },
     { name = "pre-commit-hooks", specifier = "==5.0.0" },
