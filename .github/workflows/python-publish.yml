@@ -19,17 +19,15 @@ permissions:
 
 jobs:
   deploy:
-    container:
-      image: tumi4/python-3.9-bullseye-poetry-1.2.1
-      options: --user 1001
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Build package
-      run: poetry build
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - uses: actions/checkout@v3
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Build package
+        run: uv build --quiet
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@v1.12
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

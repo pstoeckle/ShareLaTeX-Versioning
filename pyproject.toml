@@ -10,7 +10,7 @@
 
 [project]
 name = "sharelatex-versioning"
-version = "0.1.13"
+version = "0.1.14"
 description = "Tool to backup ShareLaTeX files locally."
 authors = [{ name = "Patrick Stöckle", email = "patrick.stoeckle@posteo.de" }]
 requires-python = ">=3.11,<4.0"
