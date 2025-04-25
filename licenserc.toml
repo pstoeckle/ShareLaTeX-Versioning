@@ -1,0 +1,65 @@
+# Copyright © Patrick Stoeckle none - none
+#
+# Licensed under the Apache License License 2.0
+#
+# Authors: 
+#
+# SPDX-FileCopyrightText: none Patrick Stoeckle
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# REUSE-IgnoreStart
+inlineHeader = """
+Copyright © {{ props.copyrightOwner }} {{ attrs.git_file_created_year }} - {{ attrs.git_file_modified_year }}
+
+Licensed under the Apache License License 2.0
+
+Authors: {{ attrs.git_authors | join(", ") }}
+
+SPDX-FileCopyrightText: {{ attrs.git_file_created_year }} {{ props.copyrightOwner }}
+
+SPDX-License-Identifier: Apache-2.0
+"""
+# REUSE-IgnoreEnd
+
+# You can exclude files and folders
+excludes = [
+    ".flake8",
+    ".git/*",
+    ".python-version",
+    ".vscode/*",
+    "*.j2",
+    "*.json",
+    "*.json5",
+    "*.jsonc",
+    "*.lock",
+    "*.pub",
+    "*.txt",
+    "*harden.bash*",
+    "CHANGELOG.md",
+    "COPYING.md",
+    "LICENSE.md",
+    "LICENSES/*",
+    "Makefile",
+]
+
+additionalHeaders = ["licenseheaders.toml"]
+useDefaultExcludes = false
+
+[mapping.NEW_SCRIPT]
+extensions = ["dockerignore", "gitignore"]
+
+[mapping.JINJA]
+extensions = ["jinja"]
+
+[mapping.MARKDOWN]
+extensions = ["md"]
+
+# Define variables for your file header
+[properties]
+copyrightOwner = "Patrick Stoeckle"
+
+# Activate git features to detect when a file has been changed
+[git]
+ignore = 'auto'
+attrs = 'enable'

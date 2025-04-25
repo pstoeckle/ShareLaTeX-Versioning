@@ -1,30 +1,34 @@
-"""
-Password handling
-"""
-from logging import getLogger
-from sys import platform
-from typing import Optional
+# Copyright © Patrick Stoeckle 2020 - 2022
+#
+# Licensed under the Apache License License 2.0
+#
+# Authors: Patrick Stoeckle, Patrick Stöckle
+#
+# SPDX-FileCopyrightText: 2020 Patrick Stoeckle
+#
+# SPDX-License-Identifier: Apache-2.0
 
-from keyring import get_password, set_keyring, set_password
+"""Password handling."""
+
+from __future__ import annotations
+
+from sys import platform
+
+from keyring import get_password
+from keyring import set_keyring
+from keyring import set_password
 from keyring.backends.macOS import Keyring as macos_Keyring
 from keyring.backends.Windows import WinVaultKeyring
+from typer import Exit
+from typer import echo
 
 from sharelatex_versioning.utils import error_echo
-from typer import Exit, echo
 
 SERVICE_NAME = "sharelatex-versioning"
 
-_LOGGER = getLogger(__file__)
 
-
-def store_password(force: bool, password: str, user_name: str) -> None:
-    """
-
-    :param force:
-    :param password:
-    :param user_name:
-    :return:
-    """
+def store_password(force: bool, password: str, user_name: str) -> None:  # noqa: FBT001
+    """Store the password in the keyring."""
     _set_keyring()
     current_password = get_password(SERVICE_NAME, user_name)
     if current_password is not None:
@@ -35,12 +39,8 @@ def store_password(force: bool, password: str, user_name: str) -> None:
     echo("We stored the password!")
 
 
-def get_password_from_keyring(user_name: str) -> Optional[str]:
-    """
-
-    :param user_name:
-    :return:
-    """
+def get_password_from_keyring(user_name: str) -> str | None:
+    """Get password from keyring."""
     _set_keyring()
     p = get_password(SERVICE_NAME, user_name)
     if p is None:

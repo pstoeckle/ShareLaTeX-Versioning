@@ -1,3 +1,13 @@
+# Copyright © Patrick Stoeckle 2022 - 2022
+#
+# Licensed under the Apache License License 2.0
+#
+# Authors: Patrick Stöckle
+#
+# SPDX-FileCopyrightText: 2022 Patrick Stoeckle
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Upload Python Package
 
 on:

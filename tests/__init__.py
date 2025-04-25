@@ -7,5 +7,4 @@
 # SPDX-FileCopyrightText: 2020 Patrick Stoeckle
 #
 # SPDX-License-Identifier: Apache-2.0
-
-"""Sharelatex versioning logic."""
+"""Tests for sharelatex_versioning."""

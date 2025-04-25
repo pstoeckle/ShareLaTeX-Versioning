@@ -1,0 +1,44 @@
+# Copyright © Patrick Stoeckle none - none
+#
+# Licensed under the Apache License License 2.0
+#
+# Authors: 
+#
+# SPDX-FileCopyrightText: none Patrick Stoeckle
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[NEW_SCRIPT]
+firstLine = ''
+endLine = "\n"
+beforeEachLine = '# '
+afterEachLine = ''
+allowBlankLines = false
+multipleLines = false
+padLines = false
+skipLinePattern = '^#!.*$'
+firstLineDetectionPattern = '#.*$'
+lastLineDetectionPattern = '#.*$'
+
+[JINJA]
+firstLine = ''
+endLine = "\n"
+beforeEachLine = '# '
+afterEachLine = ''
+allowBlankLines = false
+multipleLines = false
+padLines = false
+skipLinePattern = '^#!.*$'
+firstLineDetectionPattern = '#.*$'
+lastLineDetectionPattern = '#.*$'
+
+[MARKDOWN]
+firstLine = '<!--'
+endLine = "-->\n"
+beforeEachLine = ''
+afterEachLine = ''
+allowBlankLines = false
+multipleLines = true
+padLines = false
+firstLineDetectionPattern = '\s*<!--.*$'
+lastLineDetectionPattern = '\s*-->.*$'

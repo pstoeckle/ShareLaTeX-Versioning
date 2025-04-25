@@ -1,20 +1,37 @@
 {
-    "spellright.language": [
-        "en"
-    ],
+    // Python: Editor settings
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.rulers": [
+            80
+        ]
+    },
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.mypy_cache": true,
+        "**/.pytest_cache": true,
+        "**/.svn": true,
+        "**/CVS": true,
+        "**/Thumbs.db": true
+    },
+    // Python: Linting
+    "mypy-type-checker.importStrategy": "fromEnvironment",
+    // Python: Testing
+    "python.testing.pytestEnabled": true,
+    "ruff.configurationPreference": "filesystemFirst",
     "spellright.documentTypes": [
         "markdown",
         "latex",
         "plaintext"
     ],
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/.pytest_cache": true,
-        "**/.mypy_cache": true
-    }
+    "spellright.language": [
+        "en"
+    ]
 }
